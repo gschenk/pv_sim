@@ -1,46 +1,55 @@
 use serde::Deserialize;
 use std::error::Error;
 use std::fs;
+use std::process;
 use toml;
-pub struct Config {
-    pub filename: String,
-}
 
-pub struct Rawinput {
-    pub contents: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Data {
-    pub duration: u64,
-    pub profile: Vec<u64>,
-}
-
-// get config from command line arguments
-impl Config {
-    pub fn new(args: &[String], default: &'static str) -> Config {
-        let filename = if args.len() > 1 {
-            args[1].clone()
-        } else {
-            default.to_string()
-        };
-        Config { filename }
-    }
-}
+const DEFAULT_FILE: &str = "default.yaml";
 
 // read file with input data
-impl Rawinput {
-    pub fn new(config: Config) -> Result<Rawinput, Box<dyn Error>> {
-        let contents = fs::read_to_string(config.filename)?;
-        Ok(Rawinput { contents })
-    }
+fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
+    let contents = fs::read_to_string(file)?;
+    Ok(contents)
 }
 
 // deserialize raw input data
-impl Data {
-    pub fn new(rawinput: Rawinput) -> Result<Data, Box<dyn Error>> {
-        let parsed: Data = toml::from_str(&rawinput.contents)?;
-        Ok(parsed)
+fn deyaml(rawinput: &str) -> Result<Config, Box<dyn Error>> {
+    let parsed: Config = toml::from_str(&rawinput)?;
+    Ok(parsed)
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Config {
+    pub address: String,
+}
+
+// get config from command line arguments
+// looking for filename only
+impl Config {
+    pub fn new(args: &[String]) -> Config {
+        let filename = if args.len() > 1 {
+            &args[1]
+        } else {
+            DEFAULT_FILE
+        };
+
+        // read contents from config file
+        let contents = match readfile(&filename) {
+            Ok(s) => s,
+            Err(err) => {
+                eprintln!("Cannot read configuration file {}", filename);
+                eprintln!("Error: {}", err);
+                process::exit(1);
+            }
+        };
+
+        let config = deyaml(&contents).unwrap_or_else(|err| {
+            eprintln!("Cannot parse configuration file {}", filename);
+            eprintln!("Error: {}", err);
+            process::exit(2);
+        });
+
+        return config;
     }
 }
 
@@ -49,33 +58,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn empty_argument() {
-        let b = "example.yaml";
-        let received = Config::new(&[], b).filename;
-        let expected = b;
-        assert_eq!(received, expected);
-    }
-
-    #[test]
-    fn valid_argument() {
-        let a: &[String] = &["binary".to_string(), "foo.yaml".to_string()];
-        let b = "example.yaml";
-        let received = Config::new(a, b).filename;
-        let expected = "foo.yaml";
-        assert_eq!(received, expected);
-    }
-
-    #[test]
-    fn parse_toml() {
-        let a = Rawinput {
-            contents: r#"
-                duration = 5
-                profile = [ 3, 4, 0 ]
-                "#
-            .to_string(),
-        };
-        let expected = Data::new(a).unwrap();
-        assert_eq!(expected.duration, 5);
-        assert_eq!(expected.profile, [3, 4, 0]);
+    fn test_deyaml() {
+        let a: &str = r#"
+                address = '0.0.0.0'
+            "#;
+        let expected = deyaml(&a).unwrap();
+        println!("{:?}", expected);
+        assert_eq!(expected.address, "0.0.0.0".to_string());
     }
 }
