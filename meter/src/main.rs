@@ -1,4 +1,12 @@
 use amiquip::{Connection, Exchange, Publish, Result};
+use serde::Serialize;
+use serde_json;
+
+#[derive(Serialize)]
+struct Foo {
+    x: f64,
+    s: String,
+}
 
 fn main() -> Result<()> {
     // Open connection.
@@ -10,8 +18,14 @@ fn main() -> Result<()> {
     // Get a handle to the direct exchange on our channel.
     let exchange = Exchange::direct(&channel);
 
+    let foo = Foo {
+        x: std::f64::consts::E,
+        s: "bar".to_string(),
+    };
+    let ser_foo = serde_json::to_string(&foo).unwrap();
+
     // Publish a message to the "hello" queue.
-    exchange.publish(Publish::new("hello there".as_bytes(), "hello"))?;
+    exchange.publish(Publish::new(ser_foo.as_bytes(), "hello"))?;
 
     connection.close()
 }
