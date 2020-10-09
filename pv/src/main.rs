@@ -32,9 +32,23 @@ fn main() -> Result<()> {
         match message {
             ConsumerMessage::Delivery(delivery) => {
                 let body = String::from_utf8_lossy(&delivery.body);
-                let foo = deser(&body).unwrap();
+                let foo = deser(&body);
+
+                // ack only if string was deserialized correctly
+                let bar = match foo {
+                    Ok(o) => o,
+                    Err(err) => {
+                        eprintln!("Cannot parse received string: {}", body);
+                        eprintln!("Error {}", err);
+
+                        // if not comprehended, nack, and tell rabbitMQ
+                        // to remove from message queue
+                        consumer.nack(delivery, false)?;
+                        continue;
+                    }
+                };
                 consumer.ack(delivery)?;
-                println!("{:>3} {:?}", i, foo)
+                println!("{:>3} {:?}", i, bar)
             }
             other => {
                 println!("Consumer ended: {:?}", other);
