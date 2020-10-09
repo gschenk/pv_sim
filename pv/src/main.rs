@@ -4,14 +4,15 @@ use serde_json;
 use std::error::Error;
 
 #[derive(Deserialize, Debug)]
-struct Foo {
-    x: f64,
-    s: String,
+struct Data {
+    time: usize,
+    power: f64,
 }
 
-fn deser(s: &str) -> Result<Foo, Box<dyn Error>> {
-    let foo: Foo = serde_json::from_str(&s)?;
-    return Ok(foo);
+// deserialize received data
+fn deser(s: &str) -> Result<Data, Box<dyn Error>> {
+    let d: Data = serde_json::from_str(&s)?;
+    return Ok(d);
 }
 
 fn main() -> Result<()> {
@@ -32,10 +33,9 @@ fn main() -> Result<()> {
         match message {
             ConsumerMessage::Delivery(delivery) => {
                 let body = String::from_utf8_lossy(&delivery.body);
-                let foo = deser(&body);
 
                 // ack only if string was deserialized correctly
-                let bar = match foo {
+                let data = match deser(&body){
                     Ok(o) => o,
                     Err(err) => {
                         eprintln!("Cannot parse received string: {}", body);
@@ -48,7 +48,7 @@ fn main() -> Result<()> {
                     }
                 };
                 consumer.ack(delivery)?;
-                println!("{:>3} {:?}", i, bar)
+                println!("{:>3} {:?}", i, data)
             }
             other => {
                 println!("Consumer ended: {:?}", other);
