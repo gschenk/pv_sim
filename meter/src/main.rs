@@ -25,7 +25,7 @@ fn main() -> Result<()> {
     let ser_foo = serde_json::to_string(&foo).unwrap();
 
     // Publish a message to the "hello" queue.
-    exchange.publish(Publish::new(ser_foo.as_bytes(), "hello"))?;
+    exchange.publish(Publish::new(ser_foo.as_bytes(), "foo"))?;
 
     connection.close()
 }

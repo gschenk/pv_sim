@@ -1,4 +1,18 @@
 use amiquip::{Connection, ConsumerMessage, ConsumerOptions, QueueDeclareOptions, Result};
+use serde::Deserialize;
+use serde_json;
+use std::error::Error;
+
+#[derive(Deserialize, Debug)]
+struct Foo {
+    x: f64,
+    s: String,
+}
+
+fn deser(s: &str) -> Result<Foo, Box<dyn Error>> {
+    let foo: Foo = serde_json::from_str(&s)?;
+    return Ok(foo);
+}
 
 fn main() -> Result<()> {
     // Open connection.
@@ -8,7 +22,7 @@ fn main() -> Result<()> {
     let channel = connection.open_channel(None)?;
 
     // Declare the "hello" queue.
-    let queue = channel.queue_declare("hello", QueueDeclareOptions::default())?;
+    let queue = channel.queue_declare("foo", QueueDeclareOptions::default())?;
 
     // Start a consumer.
     let consumer = queue.consume(ConsumerOptions::default())?;
@@ -18,8 +32,9 @@ fn main() -> Result<()> {
         match message {
             ConsumerMessage::Delivery(delivery) => {
                 let body = String::from_utf8_lossy(&delivery.body);
-                println!("({:>3}) Received [{}]", i, body);
+                let foo = deser(&body).unwrap();
                 consumer.ack(delivery)?;
+                println!("{:>3} {:?}", i, foo)
             }
             other => {
                 println!("Consumer ended: {:?}", other);
