@@ -14,8 +14,11 @@ fn deser(s: &str) -> Result<Data, Box<dyn Error>> {
     let d: Data = serde_json::from_str(&s)?;
     return Ok(d);
 }
-
-fn main() -> Result<()> {
+//fn higer_order_fn<F>(value:i32, step: F)  -> i32
+//                    where F: Fn(i32) -> i32 {
+//    step(value)
+//}
+fn receive(procedure: &dyn Fn(Data) -> ()) -> Result<()>{
     // Open connection.
     let mut connection = Connection::insecure_open("amqp://guest:guest@localhost:5672")?;
 
@@ -29,7 +32,7 @@ fn main() -> Result<()> {
     let consumer = queue.consume(ConsumerOptions::default())?;
     println!("Waiting for messages. Press Ctrl-C to exit.");
 
-    for (i, message) in consumer.receiver().iter().enumerate() {
+    for (_i, message) in consumer.receiver().iter().enumerate() {
         match message {
             ConsumerMessage::Delivery(delivery) => {
                 let body = String::from_utf8_lossy(&delivery.body);
@@ -48,7 +51,7 @@ fn main() -> Result<()> {
                     }
                 };
                 consumer.ack(delivery)?;
-                println!("{:>3} {:?}", i, data)
+                procedure(data);
             }
             other => {
                 println!("Consumer ended: {:?}", other);
@@ -58,4 +61,9 @@ fn main() -> Result<()> {
     }
 
     connection.close()
+}
+
+fn main() {
+    let foo = |x| println!("{:?}", x);
+    let _ = receive(&foo);
 }
