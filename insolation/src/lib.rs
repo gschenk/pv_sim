@@ -12,6 +12,11 @@ const DAYS_SINCE_SOLSTICE: u64 = 10;
 // tilt of earth's axis (this is not a constant)
 const OBLIQUITY: f64 = 0.40905;
 
+// insolation constant, flux at equator, at noon at equinox
+const SOLAR: f64 = 1050.0;
+
+const MAX_AIR_MASS: f64 = 40.0;
+
 // The insolation struct provides:
 //   flux [W/m^2], instantaneous insolation
 //   azimuth angle [deg], the angle from north
@@ -27,21 +32,24 @@ impl Insolation {
     pub fn new(day: u64, time: u64, dlat: f64) -> Insolation {
         let (day, time) = time_consistency(day, time);
 
+        // some useful values
         let h = hour_angle(time);
 
         let lat = dlat.to_radians();
 
         let dec = declination(day);
 
-        let zenith = zenith(lat, dec, h).to_degrees();
+        // results
+        let zenith = zenith(lat, dec, h);
 
-        let azimuth = azimuth(h, dlat.is_sign_negative()).to_degrees();
+        let azimuth = azimuth(h, dlat.is_sign_negative());
 
-        let flux = flux();
+        let flux = flux(zenith);
+
         return Insolation {
             flux,
-            azimuth,
-            zenith,
+            azimuth: azimuth.to_degrees(),
+            zenith: zenith.to_degrees(),
         };
     }
 }
@@ -76,12 +84,10 @@ fn declination(d: u64) -> f64 {
     return OBLIQUITY * (2.0 * PI * sol_d / 365.0).cos();
 }
 
-fn flux() -> f64 {
-    return 0.0;
-}
-
+// direction to sun, north is 0, east PI/2, south PI, west 3/2 PI
+// different on either side of the equator
 fn azimuth(h: f64, is_south: bool) -> f64 {
-    return if is_south {h} else {h + PI};
+    return if is_south { h } else { h + PI };
 }
 
 // zenith returns the zenith angle [rad]
@@ -91,6 +97,26 @@ fn zenith(lat: f64, dec: f64, h: f64) -> f64 {
     return cosz.acos();
 }
 
+// Light attenuation and occlusion
+
+// Air mass is a unitless scalar >1 that models atmospheric attenuation
+// higher air mass numbers mean more attenuation
+fn air_mass(zenith: f64) -> f64 {
+    let secz = 1.0 / zenith.cos();
+    return secz.min(MAX_AIR_MASS);
+}
+
+// No sun when sun is under the horizon
+// This is a coarse assumption due to suns angular diametre of about 1 mrad
+// and diffraction
+fn horizon(zenith: f64) -> f64 {
+    return if zenith < PI / 2.0 { 1.0 } else { 0.0 };
+}
+
+fn flux(zenith: f64) -> f64 {
+    return horizon(zenith) * SOLAR / air_mass(zenith);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -98,7 +124,7 @@ mod tests {
     #[test]
     fn azimuth_morning() {
         // Azimuth at 9:00, sun is SE
-        let insolation = Insolation::new(0,32400,40.0);
+        let insolation = Insolation::new(0, 32400, 40.0);
         let expect = 135.0;
 
         println!("foo {:?}", insolation);
@@ -108,7 +134,7 @@ mod tests {
     #[test]
     fn tropic_at_noon() {
         // Zenith at southern tropic at equinox
-        let half_d = SECONDS_DAY/2;
+        let half_d = SECONDS_DAY / 2;
         let tropic_lat: f64 = -23.43;
         let insolation = Insolation::new(81, half_d, tropic_lat);
 
@@ -118,9 +144,13 @@ mod tests {
         let e_zenith = tropic_lat.abs();
 
         println!("foo {:?}", insolation);
-        assert!( (insolation.zenith - e_zenith).abs() < 0.5);
+        assert!((insolation.zenith - e_zenith).abs() < 0.5);
+
+        // for the same reason air_mass is between 1.085 and 1.095
+        assert!(insolation.flux < SOLAR / 1.085);
+        assert!(insolation.flux > SOLAR / 1.095);
 
         // sun is exactly in north at southern tropic noon
-        assert_eq!( insolation.azimuth, 0.0 );
+        assert_eq!(insolation.azimuth, 0.0);
     }
 }
