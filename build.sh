@@ -1,6 +1,6 @@
 #!/bin/sh
 
-paths=("pv solarize meter")
+paths=("pv insolation meter")
 config="config.toml"
 template="config.template.toml"
 debug=true

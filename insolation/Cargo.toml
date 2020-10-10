@@ -1,5 +1,5 @@
 [package]
-name = "solarize"
+name = "insolation"
 version = "0.1.0"
 authors = ["gerald schenk <gschenk@gmx.net>"]
 edition = "2018"

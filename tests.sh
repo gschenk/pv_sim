@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # paths to crate
-paths=("pv solarize meter")
+paths=("pv insolation meter")
 
 for p in ${paths}
 do
