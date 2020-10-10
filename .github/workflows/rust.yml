@@ -1,0 +1,30 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master, dev ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build PV Crate
+      run: cargo build --verbose --manifest-path=pv/Cargo.toml
+    - name: Build Meter Crate
+      run: cargo build --verbose --manifest-path=meter/Cargo.toml
+    - name: Build Solarize Crate
+      run: cargo build --verbose --manifest-path=solarize/Cargo.toml
+    - name: Run tests PV
+      run: cargo test --verbose --manifest-path=pv/Cargo.toml
+    - name: Run tests Meter
+      run: cargo test --verbose --manifest-path=meter/Cargo.toml
+    - name: Run tests Solarize
+      run: cargo test --verbose --manifest-path=solarize/Cargo.toml
