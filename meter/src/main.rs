@@ -2,10 +2,9 @@ use serde::Serialize;
 use std::{env, process};
 
 pub mod input;
-pub mod publisher;
+mod publisher;
+mod time;
 
-// number of seconds in a day
-const SECONDS_HOUR: u64 = 3600;
 
 #[derive(Serialize)]
 pub struct Data {
@@ -23,7 +22,7 @@ fn main() {
 
 
     // looping time
-    let mut time = Time::new(config.time);
+    let mut time = time::Time::new(config.time);
     while let Some(i) = time.now() {
         println!("{:?}", i);
     }
@@ -34,41 +33,4 @@ fn main() {
     };
 
     let _ = publisher::send(data, config.rabbit);
-}
-
-struct Time {
-    time: Option<u64>,
-    stepper: Box<dyn Fn(Option<u64>) -> Option<u64>>,
-}
-
-impl Time {
-    pub fn new(config: input::Time) -> Time {
-        let time = Some(config.start * SECONDS_HOUR);
-
-        // currying stepper with config
-        let stepper = Box::new(timestep(config));
-        return Time{ time, stepper }
-    }
-    pub fn now(&mut self) -> Option<u64> {
-        let time = self.time;
-        let stepper = &self.stepper;
-        self.time = stepper(time);
-        return time;
-    }
-}
-
-fn timestep(config: input::Time) -> impl Fn(Option<u64>) -> Option<u64> {
-    move |t| {
-        let time = match t {
-            Some(t) => t,
-            _ => return None,
-        };
-        let next = time + config.stepsize;
-        let max = config.end * SECONDS_HOUR;
-        return if next <= max {
-            Some(next)
-        } else {
-            None
-        };
-    }
 }

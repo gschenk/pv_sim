@@ -20,6 +20,7 @@ fn detoml(rawinput: &str) -> Result<Config, Box<dyn Error>> {
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub rabbit: Rabbit,
+    pub time: Time,
 }
 
 #[derive(Deserialize, Debug)]
