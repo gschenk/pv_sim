@@ -1,6 +1,9 @@
 use amiquip::{Connection, Exchange, Publish, Result};
 use serde::Serialize;
+use std::{env, process};
 use serde_json;
+
+pub mod input;
 
 #[derive(Serialize)]
 struct Data {
@@ -9,6 +12,14 @@ struct Data {
 }
 
 fn main() -> Result<()> {
+
+    // read config from filename provided as optional CLI argument
+    let args: Vec<String> = env::args().collect();
+    let _config = input::Config::new(&args).unwrap_or_else(|e| {
+        eprintln!("{}", e);
+        process::exit(1)
+    });
+
     // Open connection.
     let mut connection = Connection::insecure_open("amqp://guest:guest@localhost:5672")?;
 
