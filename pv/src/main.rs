@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::{env, process};
+use insolation::Insolation;
 
 pub mod consume;
 pub mod input;
@@ -18,6 +19,8 @@ fn main() {
         process::exit(1)
     });
 
-    let printer = |x| println!("{:?}", x);
+    let insolation = Insolation::new(0,0,0.0);
+
+    let printer = |x| println!("{:?} {}", x, insolation.azimuth );
     let _ = consume::receive(&printer, config.rabbit);
 }

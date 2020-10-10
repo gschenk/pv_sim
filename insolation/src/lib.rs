@@ -10,7 +10,7 @@ pub struct Insolation {
 }
 
 impl Insolation {
-    pub fn new(_day: usize, _time: usize, _lat: usize) -> Insolation {
+    pub fn new(_day: usize, _time: usize, _lat: f64) -> Insolation {
         let flux = flux();
             let azimuth = azimuth();
             let zenith = zenith();
