@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use std::{env, process};
-use insolation::Insolation;
+use solarize::Insolation;
 
 pub mod consume;
 pub mod input;

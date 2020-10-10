@@ -49,8 +49,8 @@ Its parameters are:
 - efficiency (we calculate panel area with it)
 
 
-# Crate Insolation
-Insolation simulates the instantaneous insolation. It takes date [day number],
+# Crate Solarize
+Solarize simulates the instantaneous insolation. It takes date [day number],
 local solar time [s], and decimal latitude. It returns instantaneous
 insolation [W/m^2] and zenith angle _z_ [rad] and azimuth angle _a_ [rad].
 
