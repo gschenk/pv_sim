@@ -13,11 +13,11 @@ pub struct Data {
 fn main() {
     // read config from file provided as optional CLI argument
     let args: Vec<String> = env::args().collect();
-    let _config = input::Config::new(&args).unwrap_or_else(|e| {
+    let config = input::Config::new(&args).unwrap_or_else(|e| {
         eprintln!("{}", e);
         process::exit(1)
     });
 
     let printer = |x| println!("{:?}", x);
-    let _ = consume::receive(&printer);
+    let _ = consume::receive(&printer, config.rabbit);
 }
