@@ -56,7 +56,7 @@ insolation [W/m^2] and zenith angle _z_ [rad] and azimuth angle _a_ [rad].
 
 Zenith angle is calculated by: [1]
 
-   cos z =sin l sin +cosϕ cos d cos h
+   cos z =sin l sin d + cos l cos d cos h
 
 where:
 - latitude _l_ in rad
