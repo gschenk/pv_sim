@@ -19,7 +19,14 @@ fn detoml(rawinput: &str) -> Result<Config, Box<dyn Error>> {
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
+    pub rabbit: Rabbit,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Rabbit {
+    pub user: String,
     pub address: String,
+    pub port: usize,
 }
 
 // get config from command line arguments
@@ -50,11 +57,15 @@ mod tests {
     #[test]
     fn test_detoml() {
         let a: &str = r#"
+                [rabbit]
+                user = "foo"
                 address = '0.0.0.0'
+                port = 5672
             "#;
         let expected = detoml(&a).unwrap();
         println!("{:?}", expected);
-        assert_eq!(expected.address, "0.0.0.0".to_string());
+        assert_eq!(expected.rabbit.address, "0.0.0.0".to_string());
+        assert_eq!(expected.rabbit.port, 5672);
     }
 
     #[test]
