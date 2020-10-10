@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fs;
 use toml;
 
-const DEFAULT_FILE: &str = "default.yaml";
+const DEFAULT_FILE: &str = "default.toml";
 
 // read file with input data
 fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
@@ -12,7 +12,7 @@ fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
 }
 
 // deserialize raw input data
-fn deyaml(rawinput: &str) -> Result<Config, Box<dyn Error>> {
+fn detoml(rawinput: &str) -> Result<Config, Box<dyn Error>> {
     let parsed: Config = toml::from_str(&rawinput)?;
     Ok(parsed)
 }
@@ -36,7 +36,7 @@ impl Config {
         let contents = readfile(&filename)
             .map_err(|e| format!("Cannot read configuration file {}. {}", filename, e))?;
 
-        let config = deyaml(&contents)
+        let config = detoml(&contents)
             .map_err(|e| format!("Cannot parse configuration file {}. {}", filename, e))?;
 
         Ok(config)
@@ -48,11 +48,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_deyaml() {
+    fn test_detoml() {
         let a: &str = r#"
                 address = '0.0.0.0'
             "#;
-        let expected = deyaml(&a).unwrap();
+        let expected = detoml(&a).unwrap();
         println!("{:?}", expected);
         assert_eq!(expected.address, "0.0.0.0".to_string());
     }
