@@ -30,6 +30,13 @@ pub struct Rabbit {
     pub queue: String,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct Time {
+    pub stepsize: u64,
+    pub start: u64,
+    pub end: u64,
+}
+
 // get config from command line arguments
 // looking for filename only
 impl Config {
