@@ -57,8 +57,10 @@ mod tests {
         assert_eq!(expected.address, "0.0.0.0".to_string());
     }
 
-    //#[test]
-    //fn default_config_consistent() {
-    //    let config = Config::new(&["bin".to_string()]);
-    //}
+    #[test]
+    fn default_config_consistent() {
+        let config = Config::new(&["bin".to_string()]);
+        println!("{:?}", config);
+        assert!(config.is_ok());
+    }
 }
