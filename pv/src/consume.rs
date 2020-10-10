@@ -1,5 +1,6 @@
 use amiquip::{Connection, ConsumerMessage, ConsumerOptions, QueueDeclareOptions, Result};
 //use serde::Deserialize;
+use crate::input::Rabbit;
 use crate::Data;
 use serde_json;
 use std::error::Error;
@@ -13,15 +14,21 @@ fn deser(s: &str) -> Result<Data, Box<dyn Error>> {
 //                    where F: Fn(i32) -> i32 {
 //    step(value)
 //}
-pub fn receive(procedure: &dyn Fn(Data) -> ()) -> Result<()> {
+pub fn receive(procedure: &dyn Fn(Data) -> (), config: Rabbit) -> Result<()> {
+    // rabbitMQ service parameters are provided by config
+    let ampq_service = &format!(
+        "amqp://{}:{}@{}:{}",
+        config.user, config.user, config.address, config.port,
+    );
+
     // Open connection.
-    let mut connection = Connection::insecure_open("amqp://guest:guest@localhost:5672")?;
+    let mut connection = Connection::insecure_open(ampq_service)?;
 
     // Open a channel - None says let the library choose the channel ID.
     let channel = connection.open_channel(None)?;
 
     // Declare the "hello" queue.
-    let queue = channel.queue_declare("foo", QueueDeclareOptions::default())?;
+    let queue = channel.queue_declare(config.queue, QueueDeclareOptions::default())?;
 
     // Start a consumer.
     let consumer = queue.consume(ConsumerOptions::default())?;

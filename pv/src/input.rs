@@ -27,6 +27,7 @@ pub struct Rabbit {
     pub user: String,
     pub address: String,
     pub port: usize,
+    pub queue: String,
 }
 
 // get config from command line arguments
@@ -61,6 +62,7 @@ mod tests {
                 user = "foo"
                 address = '0.0.0.0'
                 port = 5672
+                queue = "default"
             "#;
         let expected = detoml(&a).unwrap();
         println!("{:?}", expected);
