@@ -1,0 +1,5 @@
+# configure RabbitMQ parameters 
+[rabbit]
+user = "guest"
+address =  "127.0.0.1"
+port = 5672

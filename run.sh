@@ -19,10 +19,13 @@ then
 fi
 # some distros (eg Alpine, slackware) do not use systemd, put a different check here
 
-echo "it seems up and running"
-
 # start pv
+cargo run --manifest-path=pv/Cargo.toml config.toml &
+pid=$!
 
-# start meter
+cargo run --manifest-path=meter/Cargo.toml config.toml
+
+# kill PV after meter is done
+kill $pid
 
 # returns power consumption to STDOUT

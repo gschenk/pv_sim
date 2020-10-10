@@ -12,3 +12,6 @@ Cargo.lock
 # Private files
 task.pdf
 temp/
+
+# user configuration file
+config.toml
