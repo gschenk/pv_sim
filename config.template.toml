@@ -10,6 +10,8 @@ queue = "metering"
 stepsize = 300 # in [s]
 start = 0 # [h]
 end = 24 # [h]
+day = 100 # [d] day of year
+year = 2020 # [a] present year
 
 #parameters to 
 [panel]

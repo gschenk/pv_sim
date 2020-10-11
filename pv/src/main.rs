@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::{env, process};
+//use chrono::{DateTime, UTC};
 
 pub mod consume;
 pub mod input;
@@ -8,6 +9,8 @@ mod power;
 #[derive(Deserialize, Debug)]
 pub struct Data {
     time: u64,
+    day: u64,
+    year: u64,
     power: f64,
 }
 
@@ -35,7 +38,7 @@ fn main() {
         //   as well.
 
         // calculate solar power of PV
-        let solar = power::solar(150, meter.time, 45.0, &config.panel);
+        let solar = power::solar(meter.day, meter.time, 45.0, &config.panel);
 
         // format output
         let output = format!("{} {}", meter.time, solar + meter.power);
@@ -46,3 +49,6 @@ fn main() {
     //let printer = |x| println!("{:?} {}", x, insolation.azimuth );
     let _ = consume::receive(&process, &config);
 }
+
+//fn seconds_to_timestamp(s: f64) -> DateTime<UTC>{
+//}
