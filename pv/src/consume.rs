@@ -1,6 +1,6 @@
 use amiquip::{Connection, ConsumerMessage, ConsumerOptions, QueueDeclareOptions, Result};
 //use serde::Deserialize;
-use crate::input::{Config};
+use crate::input::Config;
 use crate::Data;
 use serde_json;
 use std::error::Error;

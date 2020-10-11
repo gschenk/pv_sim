@@ -5,20 +5,8 @@ use toml;
 
 const DEFAULT_FILE: &str = "default.toml";
 
-// read file with input data
-fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
-    let contents = fs::read_to_string(file)?;
-    Ok(contents)
-}
-
-// deserialize raw input data
-fn detoml(rawinput: &str) -> Result<TomlConfig, Box<dyn Error>> {
-    let parsed: TomlConfig = toml::from_str(&rawinput)?;
-    Ok(parsed)
-}
-
 #[derive(Debug, Clone)]
-pub struct Config{
+pub struct Config {
     pub rabbit: Rabbit,
     pub time: Time,
     pub flags: Flags,
@@ -61,12 +49,18 @@ impl Config {
         let contents = readfile(&filename)
             .map_err(|e| format!("Cannot read configuration file {}. {}", filename, e))?;
 
-        let TomlConfig{ rabbit, time } = detoml(&contents)
+        let TomlConfig { rabbit, time } = detoml(&contents)
             .map_err(|e| format!("Cannot parse configuration file {}. {}", filename, e))?;
 
-        Ok( Config{ rabbit, time, flags } )
+        Ok(Config {
+            rabbit,
+            time,
+            flags,
+        })
     }
 }
+
+// Processing CLI Arguments
 
 // constructs default Flags struct and has a method for
 // each field that can be toggled
@@ -111,6 +105,20 @@ fn flags_from_args(args: &[String]) -> Flags {
         };
     });
     return flags;
+}
+
+// Reading and Deserializing
+
+// read file with input data
+fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
+    let contents = fs::read_to_string(file)?;
+    Ok(contents)
+}
+
+// deserialize raw input data
+fn detoml(rawinput: &str) -> Result<TomlConfig, Box<dyn Error>> {
+    let parsed: TomlConfig = toml::from_str(&rawinput)?;
+    Ok(parsed)
 }
 
 #[cfg(test)]

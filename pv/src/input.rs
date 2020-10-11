@@ -5,18 +5,6 @@ use toml;
 
 const DEFAULT_FILE: &str = "default.toml";
 
-// read file with input data
-fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
-    let contents = fs::read_to_string(file)?;
-    Ok(contents)
-}
-
-// deserialize raw input data
-fn detoml(rawinput: &str) -> Result<TomlConfig, Box<dyn Error>> {
-    let parsed: TomlConfig = toml::from_str(&rawinput)?;
-    Ok(parsed)
-}
-
 #[derive(Deserialize, Debug)]
 struct TomlConfig {
     pub rabbit: Rabbit,
@@ -59,6 +47,20 @@ impl Config {
     }
 }
 
+// Processing CLI Arguments
+
+// constructs default Flags struct and has a method for
+// each field that can be toggled
+impl Flags {
+    // new Flags struct with all fields set to default
+    fn new() -> Flags {
+        return Flags { quiet: false };
+    }
+    fn quiet(&mut self) {
+        self.quiet = true;
+    }
+}
+
 // check if a string starts with a char that symbols a comand line flag
 fn is_flag(s: &str) -> bool {
     return match s.chars().next() {
@@ -78,16 +80,8 @@ fn file_from_args(args: &[String]) -> &str {
     };
 }
 
-impl Flags {
-    // new Flags struct with all fields set to default
-    fn new() -> Flags {
-        return Flags { quiet: false };
-    }
-    fn quiet(&mut self) {
-        self.quiet = true;
-    }
-}
-
+// returns Flags struct with flags set for CLI flags it finds in its
+// argument list
 fn flags_from_args(args: &[String]) -> Flags {
     let mut flags = Flags::new();
     let _ = args.iter().skip(1).filter(|s| is_flag(s)).for_each(|s| {
@@ -98,6 +92,20 @@ fn flags_from_args(args: &[String]) -> Flags {
         };
     });
     return flags;
+}
+
+// Reading and Deserializing
+
+// read file with input data
+fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
+    let contents = fs::read_to_string(file)?;
+    Ok(contents)
+}
+
+// deserialize raw input data
+fn detoml(rawinput: &str) -> Result<TomlConfig, Box<dyn Error>> {
+    let parsed: TomlConfig = toml::from_str(&rawinput)?;
+    Ok(parsed)
 }
 
 #[cfg(test)]
