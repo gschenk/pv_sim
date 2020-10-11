@@ -11,14 +11,6 @@ pub struct Data {
     power: f64,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Panel {
-    alignment: f64,   // 180 facing south, 0 facing north [deg]
-    inclination: f64, //angle from horizontal [deg]
-    peak: f64,        // nominal power of installed PV panels [kW]
-    efficiency: f64,  // ratio output to photonic input
-}
-
 fn main() {
     // read config from file provided as optional CLI argument
     let args: Vec<String> = env::args().collect();
@@ -26,13 +18,6 @@ fn main() {
         eprintln!("{}", e);
         process::exit(1)
     });
-
-    let panel = Panel {
-        alignment: 90.0,
-        inclination: 30.0,
-        peak: 10.0,
-        efficiency: 0.15,
-    };
 
     // this closure is going to be passed to rabbit consumer
     // to process each incomming message immediately
@@ -50,7 +35,7 @@ fn main() {
         //   as well.
 
         // calculate solar power of PV
-        let solar = power::solar(150, meter.time, 45.0, &panel);
+        let solar = power::solar(150, meter.time, 45.0, &config.panel);
 
         // format output
         let output = format!("{} {}", meter.time, solar + meter.power);
@@ -59,5 +44,5 @@ fn main() {
         println!("{}", output);
     };
     //let printer = |x| println!("{:?} {}", x, insolation.azimuth );
-    let _ = consume::receive(&process, config);
+    let _ = consume::receive(&process, &config);
 }
