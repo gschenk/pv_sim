@@ -7,7 +7,7 @@ pub mod input;
 
 #[derive(Deserialize, Debug)]
 pub struct Data {
-    time: usize,
+    time: u64,
     power: f64,
 }
 
@@ -19,8 +19,18 @@ fn main() {
         process::exit(1)
     });
 
-    let insolation = Insolation::new(0,0,0.0);
 
-    let printer = |x| println!("{:?} {}", x, insolation.azimuth );
-    let _ = consume::receive(&printer, config.rabbit);
+    let curried_process = |x: Data| process(150, x.time, 45.0, x.power);
+    //let printer = |x| println!("{:?} {}", x, insolation.azimuth );
+    let _ = consume::receive(&curried_process, config.rabbit);
+}
+
+fn process (day: u64, time: u64, lat: f64,  meter_power: f64 )  {
+    let insolation = Insolation::new(day,time,lat);
+
+    // approximation: 1 m^2 panel flat on the ground
+    let power = meter_power + insolation.flux * insolation.zenith.to_radians().cos();
+
+    let output = format!("{} {}", time, power);
+    println!("{}", output);
 }
