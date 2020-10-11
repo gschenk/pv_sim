@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#
+default_output="results.dat"
+
 # check if RabbitMQ is available
 if ! command -v rabbitmqctl >/dev/null
 then
@@ -19,8 +22,9 @@ then
 fi
 # some distros (eg Alpine, slackware) do not use systemd, put a different check here
 
+output=${1:-"$default_output"}
 # start pv
-cargo run --manifest-path=pv/Cargo.toml config.toml &
+cargo run --manifest-path=pv/Cargo.toml -- -q config.toml > $output &
 pid=$!
 
 cargo run --manifest-path=meter/Cargo.toml config.toml

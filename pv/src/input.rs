@@ -38,7 +38,7 @@ pub struct Rabbit {
 
 #[derive(Debug)]
 pub struct Flags {
-    quiet: bool,
+    pub quiet: bool,
 }
 
 // get config from command line arguments
