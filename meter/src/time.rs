@@ -57,6 +57,8 @@ mod tests {
             stepsize: 1,
             start: 0,
             end: 1,
+            day: 156,
+            year: 2020,
         };
 
         let mut time = super::Time::new(&config);

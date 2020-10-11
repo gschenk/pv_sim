@@ -4,10 +4,13 @@ use std::{env, process};
 pub mod consume;
 pub mod input;
 mod power;
+mod timestamp;
 
 #[derive(Deserialize, Debug)]
 pub struct Data {
     time: u64,
+    day: u64,
+    year: u64,
     power: f64,
 }
 
@@ -35,10 +38,13 @@ fn main() {
         //   as well.
 
         // calculate solar power of PV
-        let solar = power::solar(150, meter.time, 45.0, &config.panel);
+        let solar = power::solar(meter.day, meter.time, 45.0, &config.panel);
+
+        // timestamps
+        let timestamp = timestamp::from_s_d_y(meter.time, meter.day, meter.year);
 
         // format output
-        let output = format!("{} {}", meter.time, solar + meter.power);
+        let output = format!("{} {}", timestamp, solar + meter.power);
 
         // write to STDOUT
         println!("{}", output);
