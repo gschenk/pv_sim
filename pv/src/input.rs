@@ -12,14 +12,20 @@ fn readfile(file: &str) -> Result<String, Box<dyn Error>> {
 }
 
 // deserialize raw input data
-fn detoml(rawinput: &str) -> Result<Config, Box<dyn Error>> {
-    let parsed: Config = toml::from_str(&rawinput)?;
+fn detoml(rawinput: &str) -> Result<TomlConfig, Box<dyn Error>> {
+    let parsed: TomlConfig = toml::from_str(&rawinput)?;
     Ok(parsed)
 }
 
 #[derive(Deserialize, Debug)]
+struct TomlConfig {
+    pub rabbit: Rabbit,
+}
+
+#[derive(Debug)]
 pub struct Config {
     pub rabbit: Rabbit,
+    pub flags: Flags,
 }
 
 #[derive(Deserialize, Debug)]
@@ -30,22 +36,26 @@ pub struct Rabbit {
     pub queue: String,
 }
 
+#[derive(Debug)]
+pub struct Flags {
+    quiet: bool,
+}
+
 // get config from command line arguments
 // looking for filename only
 impl Config {
     pub fn new(args: &[String]) -> Result<Config, Box<dyn Error>> {
-
-        let _flags = flags_from_args(&args);
+        let flags = flags_from_args(&args);
         let filename = file_from_args(&args);
 
         // read contents from config file
         let contents = readfile(&filename)
             .map_err(|e| format!("Cannot read configuration file {}. {}", filename, e))?;
 
-        let config = detoml(&contents)
+        let TomlConfig { rabbit } = detoml(&contents)
             .map_err(|e| format!("Cannot parse configuration file {}. {}", filename, e))?;
 
-        Ok(config)
+        Ok(Config { rabbit, flags })
     }
 }
 
@@ -68,10 +78,6 @@ fn file_from_args(args: &[String]) -> &str {
     };
 }
 
-pub struct Flags {
-    quiet: bool,
-}
-
 impl Flags {
     // new Flags struct with all fields set to default
     fn new() -> Flags {
@@ -84,17 +90,13 @@ impl Flags {
 
 fn flags_from_args(args: &[String]) -> Flags {
     let mut flags = Flags::new();
-    let _ = args
-        .iter()
-        .skip(1)
-        .filter(|s| is_flag(s))
-        .for_each(|s| {
-            match &**s {
-                "-q" => flags.quiet(),
-                "--quiet" => flags.quiet(),
-                _ => {}
-            };
-        });
+    let _ = args.iter().skip(1).filter(|s| is_flag(s)).for_each(|s| {
+        match &**s {
+            "-q" => flags.quiet(),
+            "--quiet" => flags.quiet(),
+            _ => {}
+        };
+    });
     return flags;
 }
 
