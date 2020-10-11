@@ -1,6 +1,6 @@
 // Module Power provides power calculations, in particular calculating
 // output by the PV panels
-use crate::Panel;
+use crate::input::Panel;
 use solarize::Insolation;
 
 // calculates solar power
