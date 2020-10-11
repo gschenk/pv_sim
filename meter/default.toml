@@ -4,3 +4,12 @@ user = "guest"
 address =  "127.0.0.1"
 port = 5672
 queue = "default"
+
+# parameters for mock time
+[time]
+# stepzise in seconds
+stepsize = 100
+
+#start and end in hours
+start = 0
+end = 24
