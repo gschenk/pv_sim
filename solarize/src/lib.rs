@@ -12,8 +12,8 @@ const DAYS_SINCE_SOLSTICE: u64 = 10;
 // tilt of earth's axis (this is not a constant)
 const OBLIQUITY: f64 = 0.40905;
 
-// insolation constant, flux at equator, at noon at equinox
-const SOLAR: f64 = 1050.0;
+// average solar flux in space at earth
+const SOLAR_CONSTANT: f64 = 1367.0;
 
 const MAX_AIR_MASS: f64 = 40.0;
 
@@ -103,7 +103,15 @@ fn zenith(lat: f64, dec: f64, h: f64) -> f64 {
 // higher air mass numbers mean more attenuation
 fn air_mass(zenith: f64) -> f64 {
     let secz = 1.0 / zenith.cos();
-    return secz.min(MAX_AIR_MASS);
+    return secz.min(MAX_AIR_MASS).max(1.0);
+}
+
+// Attenuation by atmosphere
+// Approximation by
+// Meinel, A. B. and Meinel, M. P. (1976), Applied Solar Energy, Add. Wesl.
+// (unconfirmed)
+fn attenuation(air_mass: f64) -> f64 {
+    return 1.1 * 0.7f64.powf(air_mass.powf(0.678));
 }
 
 // No sun when sun is under the horizon
@@ -113,8 +121,9 @@ fn horizon(zenith: f64) -> f64 {
     return if zenith < PI / 2.0 { 1.0 } else { 0.0 };
 }
 
+// flux with atmospheric attenuation and horizon occlusion
 fn flux(zenith: f64) -> f64 {
-    return horizon(zenith) * SOLAR / air_mass(zenith);
+    return horizon(zenith) * SOLAR_CONSTANT * attenuation(air_mass(zenith));
 }
 
 #[cfg(test)]
@@ -147,8 +156,8 @@ mod tests {
         assert!((insolation.zenith - e_zenith).abs() < 0.5);
 
         // for the same reason air_mass is between 1.085 and 1.095
-        assert!(insolation.flux < SOLAR / 1.085);
-        assert!(insolation.flux > SOLAR / 1.095);
+        assert!(insolation.flux < SOLAR_CONSTANT * attenuation(1.085));
+        assert!(insolation.flux > SOLAR_CONSTANT * attenuation(1.095));
 
         // sun is exactly in north at southern tropic noon
         assert_eq!(insolation.azimuth, 0.0);
