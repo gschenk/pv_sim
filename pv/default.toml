@@ -4,3 +4,9 @@ user = "guest"
 address =  "127.0.0.1"
 port = 5672
 queue = "default"
+
+[panel]
+alignment = 180 # 180 facing south, 0 north [deg]
+inclination = 30 # angle from horizontal [deg]
+peak = 10 # nominal power of installed PV panels [kW]
+efficiency = 0.12 # ratio electric output to photonic input

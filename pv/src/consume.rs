@@ -14,7 +14,7 @@ fn deser(s: &str) -> Result<Data, Box<dyn Error>> {
 //                    where F: Fn(i32) -> i32 {
 //    step(value)
 //}
-pub fn receive(procedure: &dyn Fn(Data) -> (), config: Config) -> Result<()> {
+pub fn receive(procedure: &dyn Fn(Data) -> (), config: &Config) -> Result<()> {
     // rabbitMQ service parameters are provided by config
     let ampq_service = &format!(
         "amqp://{}:{}@{}:{}",
@@ -28,7 +28,7 @@ pub fn receive(procedure: &dyn Fn(Data) -> (), config: Config) -> Result<()> {
     let channel = connection.open_channel(None)?;
 
     // Declare the "hello" queue.
-    let queue = channel.queue_declare(config.rabbit.queue, QueueDeclareOptions::default())?;
+    let queue = channel.queue_declare(&*config.rabbit.queue, QueueDeclareOptions::default())?;
 
     // Start a consumer.
     let consumer = queue.consume(ConsumerOptions::default())?;

@@ -7,12 +7,14 @@ const DEFAULT_FILE: &str = "default.toml";
 
 #[derive(Deserialize, Debug)]
 struct TomlConfig {
-    pub rabbit: Rabbit,
+    rabbit: Rabbit,
+    panel: Panel,
 }
 
 #[derive(Debug)]
 pub struct Config {
     pub rabbit: Rabbit,
+    pub panel: Panel,
     pub flags: Flags,
 }
 
@@ -22,6 +24,14 @@ pub struct Rabbit {
     pub address: String,
     pub port: usize,
     pub queue: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Panel {
+    pub alignment: f64,   // 180 facing south, 0 facing north [deg]
+    pub inclination: f64, //angle from horizontal [deg]
+    pub peak: f64,        // nominal power of installed PV panels [kW]
+    pub efficiency: f64,  // ratio output to photonic input
 }
 
 #[derive(Debug)]
@@ -40,10 +50,14 @@ impl Config {
         let contents = readfile(&filename)
             .map_err(|e| format!("Cannot read configuration file {}. {}", filename, e))?;
 
-        let TomlConfig { rabbit } = detoml(&contents)
+        let TomlConfig { rabbit, panel } = detoml(&contents)
             .map_err(|e| format!("Cannot parse configuration file {}. {}", filename, e))?;
 
-        Ok(Config { rabbit, flags })
+        Ok(Config {
+            rabbit,
+            panel,
+            flags,
+        })
     }
 }
 

@@ -7,9 +7,13 @@ queue = "metering"
 
 # parameters for mock time
 [time]
-# stepzise in seconds
-stepsize = 100
+stepsize = 300 # in [s]
+start = 0 # [h]
+end = 24 # [h]
 
-#start and end in hours
-start = 0
-end = 24
+#parameters to 
+[panel]
+alignment = 180 # [deg] 180 is south
+inclination = 30 # [deg] angle from horizontal
+peak = 10 # nominal power of PV panels [kW]
+efficiency = 0.12 # ratio electric output to photonic input
