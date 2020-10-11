@@ -81,7 +81,7 @@ fn declination(d: u64) -> f64 {
     // this value equals obliquity at a solstice
     // and is zero at equinoctes
     let sol_d = (d + DAYS_SINCE_SOLSTICE) as f64;
-    return OBLIQUITY * (2.0 * PI * sol_d / 365.0).cos();
+    return -OBLIQUITY * (2.0 * PI * sol_d / 365.0).cos();
 }
 
 // direction to sun, north is 0, east PI/2, south PI, west 3/2 PI
