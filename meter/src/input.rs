@@ -31,6 +31,8 @@ pub struct Time {
     pub stepsize: u64,
     pub start: u64,
     pub end: u64,
+    pub day: u64,
+    pub year: u64,
 }
 
 #[derive(Debug, Clone)]
@@ -138,6 +140,8 @@ mod tests {
                 stepsize = 1
                 start = 0
                 end = 1
+                day = 120
+                year = 2020
             "#;
         let expected = detoml(&a).unwrap();
         println!("{:?}", expected);

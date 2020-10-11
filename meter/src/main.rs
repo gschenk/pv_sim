@@ -9,6 +9,8 @@ mod time;
 pub struct Data {
     time: u64,
     power: f64,
+    day: u64,
+    year: u64,
 }
 
 fn main() {
@@ -29,8 +31,10 @@ fn main() {
     while let Some(now) = time.now() {
         // this struct is going to be sent back
         let data = Data {
-            time: now,  // time of day in seconds
+            time: now,  // elapsed time in seconds
             power: 0.0, // power consumption in W
+            day: config.time.day, // start day
+            year: config.time.year, // start year
         };
         let _ = &publish(data);
     }

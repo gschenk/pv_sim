@@ -33,3 +33,4 @@ cargo run --manifest-path=meter/Cargo.toml config.toml
 kill $pid
 
 # returns power consumption to STDOUT
+cat $output
