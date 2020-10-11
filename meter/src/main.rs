@@ -5,7 +5,6 @@ pub mod input;
 mod publisher;
 mod time;
 
-
 #[derive(Serialize)]
 pub struct Data {
     time: u64,
@@ -20,18 +19,19 @@ fn main() {
         process::exit(1)
     });
 
-    // closure for configuration on rabbitMQ
+    // closure for configuration on rabbitMQ publisher
     let publish = |data| publisher::send(data, &config.rabbit);
 
-    // looping time
+    // `time` mocks a proper time source
     let mut time = time::Time::new(&config.time);
+
+    // looping time
     while let Some(now) = time.now() {
-        println!("{:?}", now);
+        // this struct is going to be sent back
         let data = Data {
-            time: now,
-            power: std::f64::consts::E,
+            time: now,  // time of day in seconds
+            power: 0.0, // power consumption in W
         };
         let _ = &publish(data);
     }
-
 }

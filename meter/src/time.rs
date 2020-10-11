@@ -18,9 +18,9 @@ impl Time {
     pub fn new(config: &input::Time) -> Time {
         let time = Some(config.start * SECONDS_HOUR);
 
-        // currying stepper with config
+        // currying stepper with config (this was difficult!)
         let stepper = Box::new(timestep(config.clone()));
-        return Time{ time, stepper }
+        return Time { time, stepper };
     }
 
     // .now() returns the present time
@@ -33,7 +33,7 @@ impl Time {
     }
 }
 
-// function prepared for currying
+// function wiht impl for currying
 fn timestep(config: input::Time) -> impl Fn(Option<u64>) -> Option<u64> {
     move |t| {
         let time = match t {
@@ -42,11 +42,7 @@ fn timestep(config: input::Time) -> impl Fn(Option<u64>) -> Option<u64> {
         };
         let next = time + config.stepsize;
         let max = config.end * SECONDS_HOUR;
-        return if next <= max {
-            Some(next)
-        } else {
-            None
-        };
+        return if next <= max { Some(next) } else { None };
     }
 }
 
@@ -55,15 +51,21 @@ mod tests {
     use crate::input;
 
     #[test]
-
     fn time_propagates() {
-        let config = input::Time{ stepsize: 1, start: 0, end: 1  };
+        // mock config
+        let config = input::Time {
+            stepsize: 1,
+            start: 0,
+            end: 1,
+        };
+
         let mut time = super::Time::new(&config);
 
+        // closure fn to test optional typed
         let option_assert = |x, e| {
             let now = match x {
                 Some(x) => x,
-                _ => panic!()
+                _ => panic!(),
             };
             assert_eq!(now, e);
         };
@@ -74,7 +76,7 @@ mod tests {
         option_assert(time.now(), 2);
 
         // go to end of interval
-        for _i in 2..super::SECONDS_HOUR-1 {
+        for _i in 2..super::SECONDS_HOUR - 1 {
             let _ = time.now();
         }
         // next one should be Some
