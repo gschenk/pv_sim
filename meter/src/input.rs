@@ -17,17 +17,25 @@ fn detoml(rawinput: &str) -> Result<Config, Box<dyn Error>> {
     Ok(parsed)
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub rabbit: Rabbit,
+    pub time: Time,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Rabbit {
     pub user: String,
     pub address: String,
     pub port: usize,
     pub queue: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Time {
+    pub stepsize: u64,
+    pub start: u64,
+    pub end: u64,
 }
 
 // get config from command line arguments
@@ -63,6 +71,11 @@ mod tests {
                 address = '0.0.0.0'
                 port = 5672
                 queue = "default"
+
+                [time]
+                stepsize = 1
+                start = 0
+                end = 1
             "#;
         let expected = detoml(&a).unwrap();
         println!("{:?}", expected);
