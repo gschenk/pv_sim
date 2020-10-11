@@ -1,6 +1,7 @@
+use chrono::{Duration, NaiveDate, NaiveDateTime};
 use serde::Deserialize;
+use std::convert::TryInto;
 use std::{env, process};
-//use chrono::{DateTime, UTC};
 
 pub mod consume;
 pub mod input;
@@ -40,8 +41,11 @@ fn main() {
         // calculate solar power of PV
         let solar = power::solar(meter.day, meter.time, 45.0, &config.panel);
 
+        // timestamps
+        let timestamp = seconds_to_timestamp(meter.time, meter.day, meter.year);
+
         // format output
-        let output = format!("{} {}", meter.time, solar + meter.power);
+        let output = format!("{} {}", timestamp, solar + meter.power);
 
         // write to STDOUT
         println!("{}", output);
@@ -50,5 +54,17 @@ fn main() {
     let _ = consume::receive(&process, &config);
 }
 
-//fn seconds_to_timestamp(s: f64) -> DateTime<UTC>{
-//}
+// calculates iso timestamp for time s, day, year
+fn seconds_to_timestamp(seconds: u64, day: u64, year: u64) -> NaiveDateTime{
+    let iyear: i32 = year.try_into().unwrap();
+    let iday: i64 = day.try_into().unwrap();
+    let iseconds: i64 = seconds.try_into().unwrap();
+
+    let date: NaiveDateTime = NaiveDate::from_ymd(iyear, 1, 1)
+        .and_hms(0, 0, 0)
+        .checked_add_signed(Duration::days(iday))
+        .unwrap()
+        .checked_add_signed(Duration::seconds(iseconds))
+        .unwrap();
+    return date;
+}
