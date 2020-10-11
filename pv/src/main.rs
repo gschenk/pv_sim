@@ -59,5 +59,5 @@ fn main() {
         println!("{}", output);
     };
     //let printer = |x| println!("{:?} {}", x, insolation.azimuth );
-    let _ = consume::receive(&process, config.rabbit);
+    let _ = consume::receive(&process, config);
 }

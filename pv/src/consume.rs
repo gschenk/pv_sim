@@ -1,6 +1,6 @@
 use amiquip::{Connection, ConsumerMessage, ConsumerOptions, QueueDeclareOptions, Result};
 //use serde::Deserialize;
-use crate::input::Rabbit;
+use crate::input::Config;
 use crate::Data;
 use serde_json;
 use std::error::Error;
@@ -14,11 +14,11 @@ fn deser(s: &str) -> Result<Data, Box<dyn Error>> {
 //                    where F: Fn(i32) -> i32 {
 //    step(value)
 //}
-pub fn receive(procedure: &dyn Fn(Data) -> (), config: Rabbit) -> Result<()> {
+pub fn receive(procedure: &dyn Fn(Data) -> (), config: Config) -> Result<()> {
     // rabbitMQ service parameters are provided by config
     let ampq_service = &format!(
         "amqp://{}:{}@{}:{}",
-        config.user, config.user, config.address, config.port,
+        config.rabbit.user, config.rabbit.user, config.rabbit.address, config.rabbit.port,
     );
 
     // Open connection.
@@ -28,11 +28,13 @@ pub fn receive(procedure: &dyn Fn(Data) -> (), config: Rabbit) -> Result<()> {
     let channel = connection.open_channel(None)?;
 
     // Declare the "hello" queue.
-    let queue = channel.queue_declare(config.queue, QueueDeclareOptions::default())?;
+    let queue = channel.queue_declare(config.rabbit.queue, QueueDeclareOptions::default())?;
 
     // Start a consumer.
     let consumer = queue.consume(ConsumerOptions::default())?;
-    println!("Waiting for messages. Press Ctrl-C to exit.");
+    if !config.flags.quiet {
+        println!("Waiting for messages. Press Ctrl-C to exit.");
+    }
 
     for (_i, message) in consumer.receiver().iter().enumerate() {
         match message {
