@@ -4,7 +4,7 @@ use serde_json;
 use crate::input::Rabbit;
 use crate::Data;
 
-pub fn send(data: Data, config: Rabbit) -> Result<()> {
+pub fn send(data: Data, config: &Rabbit) -> Result<()> {
     // rabbitMQ service parameters are provided by config
     let ampq_service = &format!(
         "amqp://{}:{}@{}:{}",
@@ -20,10 +20,10 @@ pub fn send(data: Data, config: Rabbit) -> Result<()> {
     // Get a handle to the direct exchange on our channel.
     let exchange = Exchange::direct(&channel);
 
-    let ser_foo = serde_json::to_string(&data).unwrap();
+    let ser_data = serde_json::to_string(&data).unwrap();
 
     // Publish a message to the "hello" queue.
-    exchange.publish(Publish::new(ser_foo.as_bytes(), config.queue))?;
+    exchange.publish(Publish::new(ser_data.as_bytes(), config.queue.clone()))?;
 
     connection.close()
 }

@@ -8,7 +8,7 @@ mod time;
 
 #[derive(Serialize)]
 pub struct Data {
-    time: usize,
+    time: u64,
     power: f64,
 }
 
@@ -20,17 +20,18 @@ fn main() {
         process::exit(1)
     });
 
+    // closure for configuration on rabbitMQ
+    let publish = |data| publisher::send(data, &config.rabbit);
 
     // looping time
-    let mut time = time::Time::new(config.time);
-    while let Some(i) = time.now() {
-        println!("{:?}", i);
+    let mut time = time::Time::new(&config.time);
+    while let Some(now) = time.now() {
+        println!("{:?}", now);
+        let data = Data {
+            time: now,
+            power: std::f64::consts::E,
+        };
+        let _ = &publish(data);
     }
 
-    let data = Data {
-        time: 123456,
-        power: std::f64::consts::E,
-    };
-
-    let _ = publisher::send(data, config.rabbit);
 }

@@ -15,11 +15,11 @@ pub struct Time {
 }
 
 impl Time {
-    pub fn new(config: input::Time) -> Time {
+    pub fn new(config: &input::Time) -> Time {
         let time = Some(config.start * SECONDS_HOUR);
 
         // currying stepper with config
-        let stepper = Box::new(timestep(config));
+        let stepper = Box::new(timestep(config.clone()));
         return Time{ time, stepper }
     }
 
@@ -47,5 +47,39 @@ fn timestep(config: input::Time) -> impl Fn(Option<u64>) -> Option<u64> {
         } else {
             None
         };
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::input;
+
+    #[test]
+
+    fn time_propagates() {
+        let config = input::Time{ stepsize: 1, start: 0, end: 1  };
+        let mut time = super::Time::new(&config);
+
+        let option_assert = |x, e| {
+            let now = match x {
+                Some(x) => x,
+                _ => panic!()
+            };
+            assert_eq!(now, e);
+        };
+
+        // check if time propagates
+        option_assert(time.now(), 0);
+        option_assert(time.now(), 1);
+        option_assert(time.now(), 2);
+
+        // go to end of interval
+        for _i in 2..super::SECONDS_HOUR-1 {
+            let _ = time.now();
+        }
+        // next one should be Some
+        assert!(time.now().is_some());
+        // past range should be None
+        assert!(time.now().is_none());
     }
 }
