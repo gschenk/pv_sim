@@ -1,9 +1,9 @@
 use serde::Deserialize;
-use solarize::Insolation;
 use std::{env, process};
 
 pub mod consume;
 pub mod input;
+mod power;
 
 #[derive(Deserialize, Debug)]
 pub struct Data {
@@ -34,41 +34,30 @@ fn main() {
         efficiency: 0.15,
     };
 
-    let curried_process = |x: Data| process(150, x.time, 45.0, x.power, &panel);
+    // this closure is going to be passed to rabbit consumer
+    // to process each incomming message immediately
+    let process = |meter: Data| {
+        // Mock time from the meter is passed to the solar function.  This is
+        // problmatic in some ways:
+        // - real world this would just get the present value as the PV
+        //   electronics measures it.
+        // - when properly mocking this (and doing so at speed) we ought to use
+        //   a common time source (eg mocking an NTSC) since we use asynchronous
+        //   messaging
+        // - for actual applications the asynchronicity between PV and metering
+        //   may be problematic in edge cases where PV from the panels changes
+        //   on a fast time-scale eg due to shading or when controlling cos(phi)
+        //   as well.
+
+        // calculate solar power of PV
+        let solar = power::solar(150, meter.time, 45.0, &panel);
+
+        // format output
+        let output = format!("{} {}", meter.time, solar + meter.power);
+
+        // write to STDOUT
+        println!("{}", output);
+    };
     //let printer = |x| println!("{:?} {}", x, insolation.azimuth );
-    let _ = consume::receive(&curried_process, config.rabbit);
-}
-
-fn process(day: u64, time: u64, lat: f64, meter_power: f64, panel: &Panel) {
-    let insolation = Insolation::new(day, time, lat);
-
-    let area = area_from_peak_power(&panel);
-
-    // approximation: 1 m^2 panel
-    let power = meter_power + area * flux_on_panel(insolation, &panel) * panel.efficiency;
-
-    let output = format!("{} {}", time, power);
-    println!("{}", output);
-}
-
-fn flux_on_panel(insolation: Insolation, panel: &Panel) -> f64 {
-    //sun angles:
-    let zenith = insolation.zenith.to_radians();
-    let azimuth = insolation.azimuth.to_radians();
-
-    //panel angles:
-    let inclination = panel.inclination.to_radians();
-    let alignment = panel.alignment.to_radians();
-    let cross_section = zenith.sin() * inclination.sin() * (alignment - azimuth).cos()
-        + zenith.cos() * inclination.cos();
-    return cross_section.max(0.0) * insolation.flux;
-}
-
-// returns size of panels in [m^2]
-fn area_from_peak_power(panel: &Panel) -> f64 {
-    // peak power is sometimes defined at nominal air mass values (eg 1.5)
-    const ASTM_SOLAR_CONSTANT: f64 = 1000.4; //ASTM G-173
-    let converted_flux = ASTM_SOLAR_CONSTANT * panel.efficiency;
-    let power = 1e3 * panel.peak; // from kW to W
-    return power / converted_flux;
+    let _ = consume::receive(&process, config.rabbit);
 }
