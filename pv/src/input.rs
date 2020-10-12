@@ -134,6 +134,12 @@ mod tests {
                 address = '0.0.0.0'
                 port = 5672
                 queue = "default"
+
+                [panel]
+                alignment = 180
+                inclination = 30
+                peak = 10
+                efficiency = 0.12
             "#;
         let expected = detoml(&a).unwrap();
         println!("{:?}", expected);
