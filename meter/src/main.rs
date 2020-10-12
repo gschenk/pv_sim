@@ -40,14 +40,13 @@ fn main() {
     while let Some(now) = time.now() {
         // this struct is going to be sent back
         
-        power = random::simulator(power, min_power, max_power, sigma);
+        power = random::simulator(time::fractional_day(now), power, min_power, max_power, sigma);
         let data = Data {
             time: now,              // elapsed time in seconds
             power,                  // power consumption in W
             day: config.time.day,   // start day
             year: config.time.year, // start year
         };
-        let _ = &publish(data);
-        //println!("{} {:?}", now as f64/3600.0, data.power);
+        //let _ = &publish(data);
     }
 }
