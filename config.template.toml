@@ -19,6 +19,7 @@ alignment = 180 # [deg] 180 is south
 inclination = 30 # [deg] angle from horizontal
 peak = 10 # nominal power of PV panels [kW]
 efficiency = 0.12 # ratio electric output to photonic input
+latitude = 48.1351 # latitude of Munich
 
 # parameters for random meter power sim
 [random]

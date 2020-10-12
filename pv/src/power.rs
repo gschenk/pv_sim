@@ -4,14 +4,14 @@ use crate::input::Panel;
 use solarize::Insolation;
 
 // calculates solar power
-pub fn solar(day: u64, time: u64, lat: f64, panel: &Panel) -> f64 {
-    let insolation = Insolation::new(day, time, lat);
+pub fn solar(day: u64, time: u64, panel: &Panel) -> f64 {
+    let insolation = Insolation::new(day, time, panel.latitude);
 
     let area = area_from_peak_power(&panel);
 
     // approximation: 1 m^2 panel
     let power = area * flux_on_panel(insolation, &panel) * panel.efficiency;
-    return power;
+    return 1e-3 * power; //returns [kW]
 }
 
 fn flux_on_panel(insolation: Insolation, panel: &Panel) -> f64 {

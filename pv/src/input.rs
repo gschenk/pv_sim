@@ -32,6 +32,7 @@ pub struct Panel {
     pub inclination: f64, //angle from horizontal [deg]
     pub peak: f64,        // nominal power of installed PV panels [kW]
     pub efficiency: f64,  // ratio output to photonic input
+    pub latitude: f64,    // decimal lattitude of panel location
 }
 
 #[derive(Debug)]
@@ -140,6 +141,7 @@ mod tests {
                 inclination = 30
                 peak = 10
                 efficiency = 0.12
+                latitude = 42.0
             "#;
         let expected = detoml(&a).unwrap();
         println!("{:?}", expected);
