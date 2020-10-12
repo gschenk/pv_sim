@@ -7,6 +7,7 @@ use crate::input;
 
 // number of seconds in a day
 const SECONDS_HOUR: u64 = 3600;
+const SECONDS_DAY: u64 = 3600 * 24;
 
 pub struct Time {
     time: Option<u64>,
@@ -86,4 +87,9 @@ mod tests {
         // past range should be None
         assert!(time.now().is_none());
     }
+}
+
+// returns time of day as a fraction of a whole day
+pub fn fractional_day(t: u64) -> f64 {
+    return (t % SECONDS_DAY) as f64 / SECONDS_DAY as f64;
 }
