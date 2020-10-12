@@ -1,7 +1,7 @@
 # configure RabbitMQ parameters 
 [rabbit]
 user = "guest"
-address =  "127.0.0.1"
+address =  "localhost"
 port = 5672
 queue = "metering"
 
