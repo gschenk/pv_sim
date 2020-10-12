@@ -1,6 +1,6 @@
 [package]
 name = "meter"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["gerald schenk <gschenk@gmx.net>"]
 edition = "2018"
 

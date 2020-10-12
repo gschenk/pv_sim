@@ -14,6 +14,7 @@ Point of Entry: `./run.sh [file]`
 
 `file` is optional and defaults to results.dat when no parameter is given.
 
+The results file has four columns: time, meter power, PV power, net power.
 
 # Crate Meter
 
@@ -33,15 +34,11 @@ Sends time [s] and present power via rabbitMQ to PV.
 ## Parameters:
 - peak power [W]
 - base power [W]
-- sampling interval _s_ [s]
-- activity start [h]
-- activity end [h]
-- number of points _n_
-- mock date [d], days since 2020-01-01
-- mock interval [s] (default 86400)
+- step size [s]
+- year, only for timestamps
+- date [d], days of year
 
 ## improvements
-- use proper chrono::DateTime struct
 - mock system time functions
 
 
