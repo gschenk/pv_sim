@@ -12,3 +12,13 @@ start = 0 # [h]
 end = 24 # [h]
 day = 100 # [d] day of year
 year = 2020 # [a] present year
+
+# parameters for random meter power sim
+[random]
+max_power = 9.0 # [kW]
+min_power = 0.5 # [kw]
+# relative random walk step [1/s]; larger steps lead to
+# stronger power fluctuation, lower values for a smooth
+# flat curve that does not reach maximum
+sigma = 5e-3
+

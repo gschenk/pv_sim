@@ -91,5 +91,5 @@ mod tests {
 
 // returns time of day as a fraction of a whole day
 pub fn fractional_day(t: u64) -> f64 {
-    return (t % SECONDS_DAY) as f64 / SECONDS_DAY as f64
+    return (t % SECONDS_DAY) as f64 / SECONDS_DAY as f64;
 }
