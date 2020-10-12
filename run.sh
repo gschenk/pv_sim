@@ -23,8 +23,11 @@ fi
 # some distros (eg Alpine, slackware) do not use systemd, put a different check here
 
 output=${1:-"$default_output"}
+
+echo "#time, meter [kW], PV [kW], new P [kW]" > $output
+
 # start pv
-cargo run --manifest-path=pv/Cargo.toml -- -q config.toml > $output &
+cargo run --manifest-path=pv/Cargo.toml -- -q config.toml >> $output &
 pid=$!
 
 cargo run --manifest-path=meter/Cargo.toml config.toml

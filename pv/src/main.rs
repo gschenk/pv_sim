@@ -22,6 +22,10 @@ fn main() {
         process::exit(1)
     });
 
+    if !config.flags.quiet {
+        println!("Output: time, Meter [kW], PV [kW], Net [kW]");
+    }
+    
     // this closure is going to be passed to rabbit consumer
     // to process each incomming message immediately
     let process = |meter: Data| {
@@ -44,7 +48,12 @@ fn main() {
         let timestamp = timestamp::from_s_d_y(meter.time, meter.day, meter.year);
 
         // format output
-        let output = format!("{} {}", timestamp, solar + meter.power);
+        let output = format!("{}   {:6.3}  {:6.3}  {:7.3}",
+                             timestamp,
+                             meter.power,
+                             solar,
+                             solar - meter.power,
+                             );
 
         // write to STDOUT
         println!("{}", output);

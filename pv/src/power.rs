@@ -11,7 +11,7 @@ pub fn solar(day: u64, time: u64, lat: f64, panel: &Panel) -> f64 {
 
     // approximation: 1 m^2 panel
     let power = area * flux_on_panel(insolation, &panel) * panel.efficiency;
-    return power;
+    return 1e-3 * power; //returns [kW]
 }
 
 fn flux_on_panel(insolation: Insolation, panel: &Panel) -> f64 {
