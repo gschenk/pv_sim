@@ -10,12 +10,14 @@ pub struct Config {
     pub rabbit: Rabbit,
     pub time: Time,
     pub flags: Flags,
+    pub random: Random,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct TomlConfig {
     pub rabbit: Rabbit,
     pub time: Time,
+    random: Random,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -35,6 +37,13 @@ pub struct Time {
     pub year: u64,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct Random {
+    pub max_power: f64,
+    pub min_power: f64,
+    pub sigma: f64,
+}
+
 #[derive(Debug, Clone)]
 pub struct Flags {
     pub quiet: bool,
@@ -51,13 +60,18 @@ impl Config {
         let contents = readfile(&filename)
             .map_err(|e| format!("Cannot read configuration file {}. {}", filename, e))?;
 
-        let TomlConfig { rabbit, time } = detoml(&contents)
+        let TomlConfig {
+            rabbit,
+            time,
+            random,
+        } = detoml(&contents)
             .map_err(|e| format!("Cannot parse configuration file {}. {}", filename, e))?;
 
         Ok(Config {
             rabbit,
             time,
             flags,
+            random,
         })
     }
 }
@@ -142,6 +156,11 @@ mod tests {
                 end = 1
                 day = 120
                 year = 2020
+
+                [random]
+                max_power = 9.0
+                min_power = 0.5
+                sigma = 5e-3
             "#;
         let expected = detoml(&a).unwrap();
         println!("{:?}", expected);
