@@ -1,3 +1,20 @@
+# Simulate Photovoltaics and Household Meter
+A simulated power meter sends its instantaneous power demand via RabbitMQ
+messaging to a photovoltaics system. The PV queries present power its
+pannels provide. The PV returns combined power of both entities to stdout.
+
+Build with `./build.sh`. Depends on a recent `cargo` installation for stable Rust.
+
+build will provide `config.toml`, with default configurations. All simulation 
+and connection parameters may be set in it.
+
+System/Network Dependency: A RabbitMQ server needs to be available.
+
+Point of Entry: `./run.sh [file]`
+
+`file` is optional and defaults to results.dat when no parameter is given.
+
+
 # Crate Meter
 
 This simulates the electric power meter of a household. It returns
@@ -36,14 +53,12 @@ Sends timestamp and present power via rabbitMQ to PV.
 
 
 # Crate PV
-This simulates a photovoltaics system including including interface to its
+This simulates a photovoltaics system including interface to its
 consumer and the power grid.
 
-
-
 Its parameters are:
-- the nominal power of the pv array
-- azimuth [deg] and tilt [deg] of the panel
+- the nominal peak power of the pv array [kW]
+- orientation [deg] and tilt [deg] of the panel
   - azimuth 180 is a south facing panel
   - at a tilt of 0 a panel is horizontal
 - efficiency (we calculate panel area with it)
@@ -83,5 +98,6 @@ hemisphere.  Trivial corrections yield all other cases.
 
 ## Improvements
 - use longitude to get solar time
+- add scatter light for smoother dawn/dusk
 
 [1] http://www.atmos.albany.edu/facstaff/brose/classes/ATM623_Spring2015/Notes/Lectures/Lecture11%20--%20Insolation.html

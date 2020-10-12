@@ -31,9 +31,9 @@ fn main() {
     while let Some(now) = time.now() {
         // this struct is going to be sent back
         let data = Data {
-            time: now,  // elapsed time in seconds
-            power: 0.0, // power consumption in W
-            day: config.time.day, // start day
+            time: now,              // elapsed time in seconds
+            power: 0.0,             // power consumption in W
+            day: config.time.day,   // start day
             year: config.time.year, // start year
         };
         let _ = &publish(data);
